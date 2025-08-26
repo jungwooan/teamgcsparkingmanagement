@@ -1,0 +1,355 @@
+/* Open Iconic CSS import removed - using Font Awesome instead */
+
+html, body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+h1:focus {
+    outline: none;
+}
+
+a, .btn-link {
+    color: #0071c1;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+.content {
+    padding-top: 1.1rem;
+}
+
+.valid.modified:not([type=checkbox]) {
+    outline: 1px solid #26b050;
+}
+
+.invalid {
+    outline: 1px solid red;
+}
+
+.validation-message {
+    color: red;
+}
+
+#blazor-error-ui {
+    background: lightyellow;
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+    #blazor-error-ui .dismiss {
+        cursor: pointer;
+        position: absolute;
+        right: 0.75rem;
+        top: 0.5rem;
+    }
+
+.blazor-error-boundary {
+    background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTYiIGhlaWdodD0iNDkiIHZpZXdCb3g9IjAgMCA1NiA0OSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTU2IDI0LjVDNTYgMzcuNDE4MyA0NC40MTgzIDQ5IDMxLjUgNDlIMjQuNUMxMS41ODE3IDQ5IDAgMzcuNDE4MyAwIDI0LjVWMjQuNUMwIDExLjU4MTcgMTEuNTgxNyAwIDI0LjUgMEgzMS41QzQ0LjQxODMgMCA1NiAxMS41ODE3IDU2IDI0LjVaIiBmaWxsPSIjRkZGRkZGIi8+CjxwYXRoIGQ9Ik0zMS41IDQ5SDI0LjVDMTEuNTgxNyA0OSAwIDM3LjQxODMgMCAyNC41VjI0LjVDMCAxMS41ODE3IDExLjU4MTcgMCAyNC41IDBIMzEuNUM0NC40MTgzIDAgNTYgMTEuNTgxNyA1NiAyNC41VjI0LjVDNTYgMzcuNDE4MyA0NC40MTgzIDQ5IDMxLjUgNDlaIiBmaWxsPSIjRkZGRkZGIi8+CjxwYXRoIGQ9Ik0yOC41IDM1SDI3LjVWMzRIMjguNVYzNVoiIGZpbGw9IiM0QjQ5NTAiLz4KPHBhdGggZD0iTTI4LjUgMzJIMjcuNVYyNkgyOC41VjMyWiIgZmlsbD0iIzRCNDk1MCIvPgo8cGF0aCBkPSJNMjkuNzUgMjQuNUMyOS43NSAyNS4xMTA0IDI5LjE1MDQgMjUuNzUgMjguNSAyNS43NUMyNy44NDk2IDI1Ljc1IDI3LjI1IDI1LjExMDQgMjcuMjUgMjQuNUMyNy4yNSAyMy44ODk2IDI3Ljg0OTYgMjMuMjUgMjguNSAyMy4yNUMyOS4xNTA0IDIzLjI1IDI5Ljc1IDIzLjg4OTYgMjkuNzUgMjQuNVoiIGZpbGw9IiM0QjQ5NTAiLz4KPC9zdmc+) no-repeat 1rem/1.8rem, #b32121;
+    padding: 1rem 1rem 1rem 3.7rem;
+    color: white;
+}
+
+    .blazor-error-boundary::after {
+        content: "An error has occurred."
+    }
+
+.loading-progress {
+    position: relative;
+    display: block;
+    width: 8rem;
+    height: 8rem;
+    margin: 20vh auto 1rem auto;
+}
+
+    .loading-progress circle {
+        fill: none;
+        stroke: #e0e0e0;
+        stroke-width: 0.6rem;
+        transform-origin: 50% 50%;
+        transform: rotate(-90deg);
+    }
+
+        .loading-progress circle:last-child {
+            stroke: #1b6ec2;
+            stroke-dasharray: calc(3.141 * var(--blazor-load-percentage, 0%) * 0.8), 500%;
+            transition: stroke-dasharray 0.05s ease-in-out;
+        }
+
+.loading-progress-text {
+    position: absolute;
+    text-align: center;
+    font-weight: bold;
+    inset: calc(20vh + 3.25rem) 0 auto 0.2rem;
+}
+
+    .loading-progress-text:after {
+        content: var(--blazor-load-percentage-text, "Loading");
+    }
+
+/* Calendar Styles */
+.calendar-container {
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.calendar-header {
+    margin-bottom: 1rem;
+}
+
+.calendar-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.calendar-row {
+    display: flex;
+    min-height: 80px;
+}
+
+.calendar-row.header {
+    min-height: 40px;
+    background: #f8f9fa;
+}
+
+.calendar-cell {
+    flex: 1;
+    padding: 0.5rem;
+    background: white;
+    border-right: 1px solid #e9ecef;
+    border-bottom: 1px solid #e9ecef;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    position: relative;
+}
+
+.calendar-cell:hover {
+    background: #f8f9fa;
+}
+
+.calendar-cell.other-month {
+    background: #f8f9fa;
+    color: #6c757d;
+}
+
+.calendar-cell.today {
+    background: #e3f2fd;
+    border: 2px solid #2196f3;
+}
+
+.date-number {
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+}
+
+.parking-info {
+    font-size: 0.75rem;
+    line-height: 1.2;
+}
+
+.usage-count {
+    color: #007bff;
+    font-weight: bold;
+}
+
+.return-count {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.external-count {
+    color: #ffc107;
+    font-weight: bold;
+}
+
+.parking-item {
+    padding: 0.5rem;
+    border-bottom: 1px solid #e9ecef;
+    margin-bottom: 0.5rem;
+}
+
+.parking-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .calendar-cell {
+        min-height: 60px;
+        padding: 0.25rem;
+    }
+    
+    .parking-info {
+        font-size: 0.7rem;
+    }
+    
+    .date-number {
+        font-size: 0.9rem;
+    }
+}
+
+/* Navigation Styles */
+.navbar-brand {
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.nav-scrollable {
+    background: #f8f9fa;
+    border-right: 1px solid #dee2e6;
+}
+
+.nav-item {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.nav-link {
+    color: #495057;
+    padding: 0.75rem 1rem;
+    transition: background-color 0.2s;
+}
+
+.nav-link:hover {
+    background: #e9ecef;
+    color: #212529;
+}
+
+.nav-link.active {
+    background: #007bff;
+    color: white;
+}
+
+/* Card Styles */
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 8px;
+}
+
+.card-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    font-weight: bold;
+}
+
+/* Button Styles */
+.btn {
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* Table Styles */
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+/* Badge Styles */
+.badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+}
+
+/* Modal Styles */
+.modal-content {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.modal-header {
+    border-bottom: 1px solid #dee2e6;
+    background: #f8f9fa;
+}
+
+.modal-footer {
+    border-top: 1px solid #dee2e6;
+    background: #f8f9fa;
+}
+
+/* Form Styles */
+.form-control {
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+}
+
+.form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+.form-label {
+    font-weight: 500;
+    color: #495057;
+}
+
+/* Statistics Cards */
+.card.bg-primary {
+    background: linear-gradient(135deg, #007bff, #0056b3) !important;
+}
+
+.card.bg-success {
+    background: linear-gradient(135deg, #28a745, #1e7e34) !important;
+}
+
+.card.bg-info {
+    background: linear-gradient(135deg, #17a2b8, #117a8b) !important;
+}
+
+.card.bg-warning {
+    background: linear-gradient(135deg, #ffc107, #e0a800) !important;
+}
+
+/* Responsive Design */
+@media (max-width: 576px) {
+    .container-fluid {
+        padding: 0.5rem;
+    }
+    
+    .calendar-container {
+        padding: 0.5rem;
+    }
+    
+    .btn-group .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+}

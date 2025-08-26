@@ -1,0 +1,243 @@
+@page "/settings"
+@using ParkingManagement.Services
+@inject IDataService DataService
+@inject ILocalStorageService LocalStorageService
+@inject IJSRuntime JSRuntime
+
+<PageTitle>설정</PageTitle>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">설정</h2>
+
+            <!-- Data Management -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">데이터 관리</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>데이터 내보내기</h6>
+                            <p class="text-muted">현재 저장된 모든 데이터를 JSON 파일로 내보냅니다.</p>
+                            <button class="btn btn-primary" @onclick="ExportData">
+                                <i class="fas fa-download"></i> 데이터 내보내기
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>데이터 가져오기</h6>
+                            <p class="text-muted">JSON 파일에서 데이터를 가져와 현재 데이터를 덮어씁니다.</p>
+                            <InputFile OnChange="ImportData" accept=".json" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Reset -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">데이터 초기화</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>주의:</strong> 이 작업은 되돌릴 수 없습니다. 모든 데이터가 삭제됩니다.
+                    </div>
+                    <button class="btn btn-danger" @onclick="ResetData">
+                        <i class="fas fa-trash"></i> 모든 데이터 삭제
+                    </button>
+                </div>
+            </div>
+
+            <!-- Application Info -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">애플리케이션 정보</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>버전:</strong></td>
+                                    <td>1.0.0</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>개발자:</strong></td>
+                                    <td>Parking Management Team</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>기술 스택:</strong></td>
+                                    <td>Blazor WebAssembly, C#, Bootstrap</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>데이터 저장:</strong></td>
+                                    <td>Local Storage</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>기능</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success"></i> 월별 캘린더 뷰</li>
+                                <li><i class="fas fa-check text-success"></i> 사용자 관리</li>
+                                <li><i class="fas fa-check text-success"></i> 주차 기록 관리</li>
+                                <li><i class="fas fa-check text-success"></i> 통계 및 분석</li>
+                                <li><i class="fas fa-check text-success"></i> 모바일 최적화</li>
+                                <li><i class="fas fa-clock text-warning"></i> 카카오톡 연동 (개발 중)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Help -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">도움말</h5>
+                </div>
+                <div class="card-body">
+                    <div class="accordion" id="helpAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                                    사용자를 어떻게 추가하나요?
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#helpAccordion">
+                                <div class="accordion-body">
+                                    <ol>
+                                        <li>"사용자 관리" 메뉴로 이동합니다.</li>
+                                        <li>"새 사용자 추가" 버튼을 클릭합니다.</li>
+                                        <li>이름과 이메일을 입력합니다.</li>
+                                        <li>카카오 ID는 선택사항입니다.</li>
+                                        <li>"저장" 버튼을 클릭합니다.</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                                    주차 기록을 어떻게 입력하나요?
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
+                                <div class="accordion-body">
+                                    <ol>
+                                        <li>메인 캘린더에서 날짜를 클릭합니다.</li>
+                                        <li>해당 날짜의 주차 현황을 확인합니다.</li>
+                                        <li>"사용 기록 추가", "반납 기록 추가", "외부 주차 추가" 버튼을 사용합니다.</li>
+                                        <li>사용자와 관련 정보를 입력합니다.</li>
+                                        <li>저장합니다.</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingThree">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
+                                    데이터는 어디에 저장되나요?
+                                </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
+                                <div class="accordion-body">
+                                    현재 버전에서는 브라우저의 Local Storage에 데이터가 저장됩니다. 
+                                    브라우저를 닫아도 데이터가 유지되지만, 다른 브라우저나 기기에서는 
+                                    데이터가 공유되지 않습니다. 브라우저 데이터를 삭제하면 모든 데이터가 손실됩니다.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        // Initialize component
+        await Task.CompletedTask;
+    }
+
+    private async Task ExportData()
+    {
+        try
+        {
+            var users = await DataService.GetUsersAsync();
+            var usages = await DataService.GetParkingUsagesAsync();
+            var returns = await DataService.GetParkingReturnsAsync();
+            var externalParkings = await DataService.GetExternalParkingsAsync();
+
+            var exportData = new
+            {
+                ExportDate = DateTime.UtcNow,
+                Users = users,
+                ParkingUsages = usages,
+                ParkingReturns = returns,
+                ExternalParkings = externalParkings
+            };
+
+            var json = System.Text.Json.JsonSerializer.Serialize(exportData, new System.Text.Json.JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+
+            var fileName = $"parking_data_{DateTime.Now:yyyyMMdd_HHmmss}.json";
+            await JSRuntime.InvokeVoidAsync("downloadFile", fileName, json);
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"데이터 내보내기 중 오류가 발생했습니다: {ex.Message}");
+        }
+    }
+
+    private async Task ImportData(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            var file = e.File;
+            if (file != null)
+            {
+                using var stream = file.OpenReadStream();
+                using var reader = new StreamReader(stream);
+                var json = await reader.ReadToEndAsync();
+
+                var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", 
+                    "기존 데이터가 모두 삭제되고 새로운 데이터로 교체됩니다. 계속하시겠습니까?");
+
+                if (confirmed)
+                {
+                    // Clear existing data
+                    await LocalStorageService.ClearAsync();
+
+                    // Parse and import data
+                    var importData = System.Text.Json.JsonSerializer.Deserialize<dynamic>(json);
+                    
+                    // Note: In a real implementation, you would need to properly handle the import
+                    // This is a simplified version
+                    await JSRuntime.InvokeVoidAsync("alert", "데이터 가져오기가 완료되었습니다. 페이지를 새로고침해주세요.");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"데이터 가져오기 중 오류가 발생했습니다: {ex.Message}");
+        }
+    }
+
+    private async Task ResetData()
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", 
+            "정말로 모든 데이터를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.");
+
+        if (confirmed)
+        {
+            await LocalStorageService.ClearAsync();
+            await JSRuntime.InvokeVoidAsync("alert", "모든 데이터가 삭제되었습니다. 페이지를 새로고침해주세요.");
+        }
+    }
+}

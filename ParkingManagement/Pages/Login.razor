@@ -1,0 +1,14 @@
+@page "/"
+@page "/login"
+@using ParkingManagement.Services
+@inject NavigationManager Navigation
+@inject ILocalStorageService LocalStorage
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await LocalStorage.SetItemAsync("isLoggedIn", "true");
+        await LocalStorage.SetItemAsync("username", "admin");
+        Navigation.NavigateTo("/calendar");
+    }
+}

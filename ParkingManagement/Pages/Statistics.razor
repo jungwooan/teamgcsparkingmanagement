@@ -1,0 +1,245 @@
+@page "/statistics"
+@using ParkingManagement.Models
+@using ParkingManagement.Services
+@inject IDataService DataService
+
+<PageTitle>통계</PageTitle>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">주차 통계</h2>
+
+            <!-- Month Selector -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">월 선택</h5>
+                            <div class="d-flex align-items-center">
+                                <button class="btn btn-outline-primary me-2" @onclick="PreviousMonth">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <h4 class="mb-0 flex-grow-1 text-center">@selectedMonth.ToString("yyyy년 MM월")</h4>
+                                <button class="btn btn-outline-primary ms-2" @onclick="NextMonth">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">총 주차 사용</h5>
+                            <h3>@monthlyStats.TotalParkingUsages</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">총 주차 반납</h5>
+                            <h3>@monthlyStats.TotalParkingReturns</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">총 외부 주차</h5>
+                            <h3>@monthlyStats.TotalExternalParkings</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">총 비용</h5>
+                            <h3>₩@monthlyStats.TotalCost.ToString("N0")</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Statistics Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">사용자별 통계</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>사용자</th>
+                                    <th>주차 사용</th>
+                                    <th>주차 반납</th>
+                                    <th>외부 주차</th>
+                                    <th>총 비용</th>
+                                    <th>평균 사용률</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (monthlyStats.UserStatistics.Any())
+                                {
+                                    @foreach (var userStat in monthlyStats.UserStatistics)
+                                    {
+                                        var totalDays = DateTime.DaysInMonth(selectedMonth.Year, selectedMonth.Month);
+                                        var usageRate = totalDays > 0 ? (double)userStat.ParkingUsages / totalDays * 100 : 0;
+                                        
+                                        <tr>
+                                            <td>
+                                                <strong>@userStat.UserName</strong>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-primary">@userStat.ParkingUsages</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-success">@userStat.ParkingReturns</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-warning">@userStat.ExternalParkings</span>
+                                            </td>
+                                            <td>
+                                                <span class="text-info fw-bold">₩@userStat.TotalCost.ToString("N0")</span>
+                                            </td>
+                                            <td>
+                                                <div class="progress" style="height: 20px;">
+                                                    <div class="progress-bar bg-primary" 
+                                                         style="width: @(Math.Min(usageRate, 100))%">
+                                                        @usageRate.ToString("F1")%
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted">
+                                            해당 월의 데이터가 없습니다.
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">주차 사용 패턴</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="usageChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">비용 분포</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="costChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private DateTime selectedMonth = DateTime.Today;
+    private MonthlyStats monthlyStats = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadStatistics();
+    }
+
+    private async Task LoadStatistics()
+    {
+        try
+        {
+            var stats = await DataService.GetMonthlyStatisticsAsync(selectedMonth);
+            
+            // Cast the dynamic result to our MonthlyStats class
+            monthlyStats = new MonthlyStats
+            {
+                Month = selectedMonth.ToString("yyyy-MM"),
+                TotalParkingUsages = Convert.ToInt32(stats.GetType().GetProperty("TotalParkingUsages")?.GetValue(stats) ?? 0),
+                TotalParkingReturns = Convert.ToInt32(stats.GetType().GetProperty("TotalParkingReturns")?.GetValue(stats) ?? 0),
+                TotalExternalParkings = Convert.ToInt32(stats.GetType().GetProperty("TotalExternalParkings")?.GetValue(stats) ?? 0),
+                TotalCost = Convert.ToDecimal(stats.GetType().GetProperty("TotalCost")?.GetValue(stats) ?? 0),
+                UserStatistics = new List<UserStat>()
+            };
+
+            var userStatsProperty = stats.GetType().GetProperty("UserStatistics");
+            if (userStatsProperty?.GetValue(stats) is IEnumerable<object> userStatsEnumerable)
+            {
+                foreach (var userStat in userStatsEnumerable)
+                {
+                    var userStatType = userStat.GetType();
+                    monthlyStats.UserStatistics.Add(new UserStat
+                    {
+                        UserId = Convert.ToInt32(userStatType.GetProperty("UserId")?.GetValue(userStat) ?? 0),
+                        UserName = Convert.ToString(userStatType.GetProperty("UserName")?.GetValue(userStat) ?? ""),
+                        ParkingUsages = Convert.ToInt32(userStatType.GetProperty("ParkingUsages")?.GetValue(userStat) ?? 0),
+                        ParkingReturns = Convert.ToInt32(userStatType.GetProperty("ParkingReturns")?.GetValue(userStat) ?? 0),
+                        ExternalParkings = Convert.ToInt32(userStatType.GetProperty("ExternalParkings")?.GetValue(userStat) ?? 0),
+                        TotalCost = Convert.ToDecimal(userStatType.GetProperty("TotalCost")?.GetValue(userStat) ?? 0)
+                    });
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading statistics: {ex.Message}");
+            monthlyStats = new MonthlyStats();
+        }
+    }
+
+    private async Task PreviousMonth()
+    {
+        selectedMonth = selectedMonth.AddMonths(-1);
+        await LoadStatistics();
+    }
+
+    private async Task NextMonth()
+    {
+        selectedMonth = selectedMonth.AddMonths(1);
+        await LoadStatistics();
+    }
+
+    public class MonthlyStats
+    {
+        public string Month { get; set; } = string.Empty;
+        public int TotalParkingUsages { get; set; }
+        public int TotalParkingReturns { get; set; }
+        public int TotalExternalParkings { get; set; }
+        public decimal TotalCost { get; set; }
+        public List<UserStat> UserStatistics { get; set; } = new();
+    }
+
+    public class UserStat
+    {
+        public int UserId { get; set; }
+        public string UserName { get; set; } = string.Empty;
+        public int ParkingUsages { get; set; }
+        public int ParkingReturns { get; set; }
+        public int ExternalParkings { get; set; }
+        public decimal TotalCost { get; set; }
+    }
+}

@@ -1,0 +1,396 @@
+@page "/users"
+@using ParkingManagement.Models
+@using ParkingManagement.Services
+@inject IDataService DataService
+@inject IJSRuntime JSRuntime
+
+<PageTitle>사용자 관리</PageTitle>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>사용자 관리</h2>
+                <div>
+                    <button type="button" class="btn btn-success" @onclick="ShowAddUserModal">
+                        <i class="bi bi-person-plus"></i> 새 사용자 추가
+                    </button>
+                </div>
+            </div>
+
+            <!-- User Statistics -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">총 사용자</h5>
+                            <h3>@users.Count</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">이번 달 주차 사용</h5>
+                            <h3>@monthlyUsageCount</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">이번 달 외부 주차</h5>
+                            <h3>@monthlyExternalCount</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">이번 달 총 비용</h5>
+                            <h3>₩@monthlyTotalCost.ToString("N0")</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">사용자 목록</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>이름</th>
+                                    <th>소속</th>
+                                    <th>가입일</th>
+                                    <th>주차 사용 횟수</th>
+                                    <th>외부 주차 횟수</th>
+                                    <th>총 비용</th>
+                                    <th>액션</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (users.Any())
+                                {
+                                    @foreach (var user in users)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="bg-secondary rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                                        <i class="bi bi-person text-white"></i>
+                                                    </div>
+                                                    <span>@user.Name</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info">@user.Department</span>
+                                            </td>
+                                            <td>@user.CreatedAt.ToString("yyyy-MM-dd")</td>
+                                            <td>
+                                                <span class="badge bg-primary">@(userStatistics.ContainsKey(user.Id) ? userStatistics[user.Id].ParkingUsages : 0)</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-warning">@(userStatistics.ContainsKey(user.Id) ? userStatistics[user.Id].ExternalParkings : 0)</span>
+                                            </td>
+                                            <td>₩@(userStatistics.ContainsKey(user.Id) ? userStatistics[user.Id].TotalCost.ToString("N0") : "0")</td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <button type="button" class="btn btn-sm btn-outline-primary" @onclick="() => ShowUserDetailModal(user)" title="상세보기">
+                                                        <i class="bi bi-eye"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary" @onclick="() => ShowEditUserModal(user)" title="수정">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger" @onclick="() => DeleteUser(user.Id)" title="삭제">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted py-4">
+                                            <i class="bi bi-people" style="font-size: 2rem;"></i>
+                                            <p class="mt-2">등록된 사용자가 없습니다.</p>
+                                            <p>위의 "새 사용자 추가" 버튼을 클릭하여 사용자를 추가해보세요.</p>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit User Modal -->
+@if (showUserModal)
+{
+    <div class="modal fade show" style="display: block; z-index: 1050;" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@(editingUser?.Id > 0 ? "사용자 수정" : "새 사용자 추가")</h5>
+                    <button type="button" class="btn-close" @onclick="CloseUserModal"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="editingUser" OnValidSubmit="SaveUser">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="mb-3">
+                            <label for="name" class="form-label">이름 *</label>
+                            <InputText id="name" class="form-control" @bind-Value="editingUser.Name" placeholder="사용자 이름을 입력하세요" />
+                            <ValidationMessage For="@(() => editingUser.Name)" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="department" class="form-label">소속 *</label>
+                            <InputText id="department" class="form-control" @bind-Value="editingUser.Department" placeholder="소속을 입력하세요 (예: 개발팀, 인사팀)" />
+                            <ValidationMessage For="@(() => editingUser.Department)" />
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" @onclick="CloseUserModal">취소</button>
+                            <button type="submit" class="btn btn-primary">저장</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show" style="z-index: 1040;"></div>
+}
+
+<!-- User Detail Modal -->
+@if (showDetailModal && selectedUser != null)
+{
+    <div class="modal fade show" style="display: block; z-index: 1050;" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@selectedUser.Name 상세 정보</h5>
+                    <button type="button" class="btn-close" @onclick="CloseDetailModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            <div class="bg-secondary rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 120px; height: 120px;">
+                                <i class="bi bi-person text-white" style="font-size: 3rem;"></i>
+                            </div>
+                            <h4>@selectedUser.Name</h4>
+                            <p class="text-muted">
+                                <span class="badge bg-info fs-6">@selectedUser.Department</span>
+                            </p>
+                            <p class="text-muted">가입일: @selectedUser.CreatedAt.ToString("yyyy년 MM월 dd일")</p>
+                        </div>
+                        <div class="col-md-8">
+                            <h6>이번 달 통계</h6>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="card bg-primary text-white mb-2">
+                                        <div class="card-body p-2">
+                                            <small>주차 사용</small>
+                                            <h5 class="mb-0">@(userStatistics.ContainsKey(selectedUser.Id) ? userStatistics[selectedUser.Id].ParkingUsages : 0)</h5>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="card bg-warning text-white mb-2">
+                                        <div class="card-body p-2">
+                                            <small>외부 주차</small>
+                                            <h5 class="mb-0">@(userStatistics.ContainsKey(selectedUser.Id) ? userStatistics[selectedUser.Id].ExternalParkings : 0)</h5>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="card bg-success text-white mb-2">
+                                        <div class="card-body p-2">
+                                            <small>주차 반납</small>
+                                            <h5 class="mb-0">@(userStatistics.ContainsKey(selectedUser.Id) ? userStatistics[selectedUser.Id].ParkingReturns : 0)</h5>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="card bg-info text-white mb-2">
+                                        <div class="card-body p-2">
+                                            <small>총 비용</small>
+                                            <h5 class="mb-0">₩@(userStatistics.ContainsKey(selectedUser.Id) ? userStatistics[selectedUser.Id].TotalCost.ToString("N0") : "0")</h5>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show" style="z-index: 1040;"></div>
+}
+
+@code {
+    private List<User> users = new();
+    private Dictionary<int, UserStats> userStatistics = new();
+    private bool showUserModal = false;
+    private bool showDetailModal = false;
+    private User? editingUser;
+    private User? selectedUser;
+    private int monthlyUsageCount = 0;
+    private int monthlyExternalCount = 0;
+    private decimal monthlyTotalCost = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        try
+        {
+            users = await DataService.GetUsersAsync();
+            await LoadUserStatistics();
+            await LoadMonthlyStatistics();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading data: {ex.Message}");
+        }
+    }
+
+    private async Task LoadUserStatistics()
+    {
+        try
+        {
+            var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+
+            userStatistics.Clear();
+            foreach (var user in users)
+            {
+                var stats = await DataService.GetUserStatisticsAsync(user.Id, startDate, endDate);
+                userStatistics[user.Id] = (UserStats)stats;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading user statistics: {ex.Message}");
+        }
+    }
+
+    private async Task LoadMonthlyStatistics()
+    {
+        try
+        {
+            var stats = await DataService.GetMonthlyStatisticsAsync(DateTime.Today);
+            var monthlyStats = (dynamic)stats;
+            monthlyUsageCount = monthlyStats.TotalParkingUsages;
+            monthlyExternalCount = monthlyStats.TotalExternalParkings;
+            monthlyTotalCost = monthlyStats.TotalCost;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading monthly statistics: {ex.Message}");
+        }
+    }
+
+    private void ShowAddUserModal()
+    {
+        editingUser = new User();
+        showUserModal = true;
+        StateHasChanged();
+    }
+
+    private void ShowEditUserModal(User user)
+    {
+        editingUser = new User
+        {
+            Id = user.Id,
+            Name = user.Name,
+            Department = user.Department
+        };
+        showUserModal = true;
+        StateHasChanged();
+    }
+
+    private async Task SaveUser()
+    {
+        try
+        {
+            if (editingUser != null)
+            {
+                if (editingUser.Id > 0)
+                {
+                    await DataService.UpdateUserAsync(editingUser);
+                }
+                else
+                {
+                    await DataService.CreateUserAsync(editingUser);
+                }
+                await LoadData();
+                CloseUserModal();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving user: {ex.Message}");
+        }
+    }
+
+    private async Task DeleteUser(int userId)
+    {
+        try
+        {
+            var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "정말로 이 사용자를 삭제하시겠습니까?");
+            if (confirmed)
+            {
+                await DataService.DeleteUserAsync(userId);
+                await LoadData();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting user: {ex.Message}");
+        }
+    }
+
+    private void ShowUserDetailModal(User user)
+    {
+        selectedUser = user;
+        showDetailModal = true;
+        StateHasChanged();
+    }
+
+    private void CloseUserModal()
+    {
+        showUserModal = false;
+        editingUser = null;
+        StateHasChanged();
+    }
+
+    private void CloseDetailModal()
+    {
+        showDetailModal = false;
+        selectedUser = null;
+        StateHasChanged();
+    }
+
+    public class UserStats
+    {
+        public int ParkingUsages { get; set; }
+        public int ParkingReturns { get; set; }
+        public int ExternalParkings { get; set; }
+        public decimal TotalCost { get; set; }
+    }
+}
