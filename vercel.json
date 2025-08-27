@@ -1,7 +1,6 @@
 {
   "buildCommand": "dotnet publish ParkingManagement/ParkingManagement.csproj -c Release -o dist",
   "outputDirectory": "dist/wwwroot",
-  "framework": "blazor",
   "installCommand": "dotnet restore ParkingManagement/ParkingManagement.csproj",
   "rewrites": [
     {
