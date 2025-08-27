@@ -1,40 +1,13 @@
 {
-  "buildCommand": "cd ParkingManagement && dotnet publish -c Release -o ./publish",
   "outputDirectory": "ParkingManagement/publish/wwwroot",
-  "installCommand": "cd ParkingManagement && dotnet restore",
-  "framework": "blazor",
-  "routes": [
+  "rewrites": [
     {
-      "src": "/_framework/(.*)",
-      "dest": "/_framework/$1"
+      "source": "/_framework/(.*)",
+      "destination": "/_framework/$1"
     },
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
-  "headers": [
-    {
-      "source": "**/*.@(js|css|json|ico|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
-    },
-    {
-      "source": "**/*.@(wasm)",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/wasm"
-        },
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
