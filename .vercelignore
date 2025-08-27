@@ -1,0 +1,46 @@
+# Build outputs
+**/bin/
+**/obj/
+**/publish/
+**/dist/
+
+# Development files
+**/*.user
+**/*.suo
+**/*.cache
+**/*.log
+
+# IDE files
+.vs/
+.vscode/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Node modules (if any)
+node_modules/
+
+# Test files
+**/test/
+**/tests/
+**/*.test.*
+**/*.spec.*
+
+# Documentation
+README.md
+docs/
+
+# Server project (we only need the client)
+ParkingManagementServer/
