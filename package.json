@@ -1,0 +1,14 @@
+{
+  "name": "parking-management",
+  "version": "1.0.0",
+  "description": "Parking Management System - Blazor WebAssembly",
+  "scripts": {
+    "build": "dotnet publish ParkingManagement/ParkingManagement.csproj -c Release -o dist",
+    "install-deps": "dotnet restore ParkingManagement/ParkingManagement.csproj"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {},
+  "dependencies": {}
+}
